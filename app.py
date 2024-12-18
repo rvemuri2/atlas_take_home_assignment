@@ -16,7 +16,7 @@ def detect_rapid_transactions(df, time_window_seconds=120):
     flagged = df[df['time_diff'] <= time_window_seconds]
     return flagged
 
-def detect_excessive_transactions(df, transaction_limit=10):
+def detect_excessive_transactions(df, transaction_limit=7):
      df = df.sort_values(by=['user_id', 'timestamp'])
     
      results = []
@@ -34,7 +34,7 @@ def detect_excessive_transactions(df, transaction_limit=10):
 
      return flagged
 
-def detect_near_duplicate_transactions(df, time_delta_seconds=60):
+def detect_duplicate_transactions(df, time_delta_seconds=60):
     df = df.sort_values(by=['user_id', 'timestamp'])
     df['time_diff'] = df.groupby(['user_id', 'merchant_name', 'amount'])['timestamp'].diff().dt.total_seconds()
     duplicates = df[df['time_diff'].abs() <= time_delta_seconds]
@@ -103,7 +103,7 @@ def main():
             st.write("No users flagged for excessive transactions.")
         
         #Rule 4: Detecting duplicate transactions
-        duplicate_transactions = detect_near_duplicate_transactions(df, 60)
+        duplicate_transactions = detect_duplicate_transactions(df, 60)
         st.write("### 4.Duplicate Transactions") 
         if not duplicate_transactions.empty:
             st.dataframe(duplicate_transactions)
